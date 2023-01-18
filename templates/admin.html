@@ -1,20 +1,20 @@
 {% extends 'baselogin.html' %}
-{% block title %} User Login{% endblock title %}
+{% block title %} Admin Login{% endblock title %}
 {% block form %}
 
 <section class="container1 forms">
     <div class="form login">
         <div class="form-content">
-            <header>Login</header>
-            <form action="/login" method="post" id="logFrm">
+            <header>Admin Login</header>
+            <form action="/admin" method="post" id="logFrm">
                 {% include "message.html" %}
                 <div class="field input-field">
-                    <input type="text" placeholder="Enter SRF ID" class="input" name="srf" required>
+                    <input type="text" placeholder="Enter UserName" class="input" name="username" required>
                 </div>
 
                 <div class="field input-field">
-                    <input type="date" placeholder="Enter DOB" class="password" name="dob" required>
-                    <!-- <i class='bx bx-hide eye-icon'></i> -->
+                    <input type="password" placeholder="Enter Password" class="password" name="password" required>
+                    <i class='bx bx-hide eye-icon'></i>
                 </div>
 
                 <!-- <div class="form-link">
@@ -26,10 +26,7 @@
                 </div>
             </form>
 
-            <div class="form-link">
-                <span>Don't have an account? <a href="/signup" class="link signup-link">Signup</a></span>
-            </div>
         </div>
-        <!-- <script src="static/assets/js/v-main.js"></script> -->
+        <script src="static/assets/js/v-main.js"></script>
 
         {% endblock form %}
