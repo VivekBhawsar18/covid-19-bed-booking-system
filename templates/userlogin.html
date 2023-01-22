@@ -9,7 +9,8 @@
             <form action="/login" method="post" id="logFrm">
                 {% include "message.html" %}
                 <div class="field input-field">
-                    <input type="text" placeholder="Enter SRF ID" class="input" name="srf" required>
+                    <input type="text" placeholder="Enter SRF ID" class="input" name="srf" minlength="10" maxlength="10"
+                        required>
                 </div>
 
                 <div class="field input-field">
