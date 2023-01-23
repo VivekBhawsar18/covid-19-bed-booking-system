@@ -1,9 +1,8 @@
 {% extends 'baselogin.html' %}
-{% block title %} User SignUp{% endblock title %}
+{% block title %} Hospital Login{% endblock title %}
 
 {% block navbar %}
 <li><a class="nav-link scrollto active" href="/">HOME</a></li>
-
 {% endblock navbar %}
 
 {% block dropdown %}
@@ -21,36 +20,24 @@
 <section class="container1 forms">
     <div class="form login">
         <div class="form-content">
-            <header>Signup</header>
-            <form action="/signup" method="post" id="sipfrm">
-                <div class="field input-field">
-                    <input type="text" placeholder="Enter SRF ID" class="input" name="srf" minlength="10" maxlength="10"
-                        required>
-                </div>
-
+            <header>Hospital Login</header>
+            <form action="/hospitallogin" method="post" id="logFrm">
+                {% include "message.html" %}
                 <div class="field input-field">
                     <input type="email" placeholder="Enter Email" class="input" name="email" required>
                 </div>
 
                 <div class="field input-field">
-                    <input type="date" placeholder="Enter DOB" class="password" name="dob" required>
-                </div>
-                <!-- 
-                <div class="field input-field">
-                    <input type="password" placeholder="Confirm password" class="password">
+                    <input type="password" placeholder="Enter Password" class="password" name="password" required>
                     <i class='bx bx-hide eye-icon'></i>
-                </div> -->
+                </div>
 
                 <div class="field button-field">
-                    <button type="submit">Signup</button>
+                    <button type="submit">Login</button>
                 </div>
             </form>
 
-            <div class="form-link">
-                <span>Already have an account? <a href="/login" class="link login-link">Login</a></span>
-            </div>
         </div>
-        <!-- <script src="static/assets/js/v-main.js"></script> -->
-
+        <script src="static/assets/js/v-main.js"></script>
 
         {% endblock form %}

@@ -5,6 +5,8 @@ from werkzeug.security import generate_password_hash,check_password_hash
 
 from flask_login import login_required,logout_user,login_user,login_manager,LoginManager,current_user
 from flask import session
+from flask_mail import Mail
+import json
 
 app = Flask(__name__)
 
@@ -14,16 +16,26 @@ app.secret_key="QJkCl_}>``(H}i)"
 login_manager=LoginManager(app)
 login_manager.login_view='login'
 
+
 # mydatabase connection
-
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://vivek01:Vikas#9789@mysql-server-demoflask.mysql.database.azure.com/hmsdb'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://vivek01:Vikas#9789@mysql-server-demoflask.mysql.database.azure.com/hmsdb'
 # app.config["SQLALCHEMY_DATABASE_URI"] = "mssql+pyodbc://vivekad_01:Vikas#9789@demovb.database.windows.net/vivekdb?driver=SQL+Server"
+app.config["SQLALCHEMY_DATABASE_URI"] = 'mysql://root:@localhost/cndb'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-db=SQLAlchemy(app)
 
 with open('config.json','r') as c:
     params=json.load(c)["params"]
+
+app.config.update(
+    MAIL_SERVER='smtp.gmail.com',
+    MAIL_PORT='465',
+    MAIL_USE_SSL=True,
+    MAIL_USERNAME=params['gmail-acc'],
+    MAIL_PASSWORD=params['gmail-acc-pass']
+)
+mail = Mail(app)
+
+db=SQLAlchemy(app)
 
 
 @login_manager.user_loader
@@ -45,15 +57,17 @@ class User(UserMixin,db.Model):
 
 class Hospitaluser(UserMixin,db.Model):
     id=db.Column(db.Integer,primary_key=True)
-    hcode=db.Column(db.String(20))
-    email=db.Column(db.String(50))
+    hcode=db.Column(db.String(20),unique=True)
+    email=db.Column(db.String(50),unique=True)
     password=db.Column(db.String(1000))
 
 
 @app.route('/')
 def hello_world():
-    # return render_template('index.html')
     return render_template('index.html')
+    # return render_template("addHosUser.html")
+    # return render_template("baselogin.html")
+
 
 @app.route('/dbcon')
 def test():
@@ -112,6 +126,28 @@ def login():
 
     return render_template('userlogin.html')
 
+@app.route('/hospitallogin',methods=['POST','GET'])
+def hospitalLogin():
+    if request.method=="POST":
+        email=request.form.get('email')
+        pwd=request.form.get('password')
+
+        user=Hospitaluser.query.filter_by(email=email).first()
+
+        if user and check_password_hash(user.password,pwd):
+            login_user(user)
+            flash("Login Success","info")
+            # session.pop('srfid', None)
+            # session.clear()
+            # return render_template("index.html")
+            return "<h1>Login success</h1>"
+        else:
+            flash("Invalid Credentials","danger")
+            return render_template("hospitallogin.html")
+            # return "login fail"
+
+    return render_template('hospitallogin.html')
+
 @app.route('/logout')
 @login_required
 def logout():
@@ -131,12 +167,59 @@ def admin():
         # if(username=='admin' and password=='admin'):
             session['user']=username
             flash("login success","info")
-            session.clear()
             return render_template("addHosUser.html")
         else:
             flash("Invalid Credentials","danger")
 
     return render_template("admin.html")
+
+@app.route('/addHosptalUser',methods=['POST','GET'])
+def HospitalUser():
+    if('user' in session and session['user']==params['username']):
+
+        if request.method=='POST':
+            hcode=request.form.get('hcode')
+            email=request.form.get('email')
+            password=request.form.get('password') 
+
+            encpassword=generate_password_hash(password)
+            hcode=hcode.upper()      
+
+            emailUser=Hospitaluser.query.filter_by(email=email).first()
+            hcodeUser = Hospitaluser.query.filter_by(hcode=hcode).first()
+
+            # if  emailUser or hcodeuser:
+            if  emailUser:
+                flash("Email is already taken","warning")
+                return render_template("addHosUser.html")
+
+            elif hcodeUser :
+                flash("Hcode is already taken","warning")
+                return render_template("addHosUser.html")       
+
+            # this is method  to save data in db
+            newhuser=Hospitaluser(hcode=hcode,email=email,password=encpassword)
+            db.session.add(newhuser)
+            db.session.commit()
+
+            # my mail starts from here if you not need to send mail comment the below line
+           
+            mail.send_message('COVID CARE CENTER',sender=params['gmail-acc'],recipients=[email],body=f"Welcome thanks for choosing us\nYour Login Credentials Are:\n Email Address: {email}\nPassword: {password}\n\nHospital Code {hcode}\n\n Do not share your password\n\n\nThank You..." )
+
+            flash("Mail Sent and Data Inserted Successfully","warning")
+            return render_template("addHosUser.html")
+
+    else:
+        flash("Login and try Again","warning")
+        return render_template("addHosUser.html")
+
+@app.route("/logoutAdmin")
+def logoutadmin():
+    session.pop('user')
+    flash("You are logout admin", "primary")
+
+    return redirect('/admin')
+
 
 if __name__ == "__main__":
     app.run(debug=True , port=1000)

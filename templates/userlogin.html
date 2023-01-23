@@ -1,5 +1,22 @@
 {% extends 'baselogin.html' %}
 {% block title %} User Login{% endblock title %}
+
+{% block navbar %}
+<li><a class="nav-link scrollto active" href="/">HOME</a></li>
+
+{% endblock navbar %}
+
+{% block dropdown %}
+<li class="dropdown"><a href="/login"><span>LOGIN</span> <i class="bi bi-chevron-down"></i></a>
+    <ul>
+        <li><a href="/login">User Login</a></li>
+        <li><a href="/hospitallogin">Hospital Login</a></li>
+        <li><a href="/admin">Admin Login</a></li>
+    </ul>
+</li>
+{% endblock dropdown %}
+
+
 {% block form %}
 
 <section class="container1 forms">
